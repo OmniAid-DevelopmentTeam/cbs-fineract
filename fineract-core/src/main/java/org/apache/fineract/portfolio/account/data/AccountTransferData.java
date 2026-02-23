@@ -102,6 +102,17 @@ public final class AccountTransferData implements Serializable {
                 null, null, toAccountType, null, null, null, null, null, null, null, null, null);
     }
 
+    public static AccountTransferData transferBasicDetailsWithClients(final Long id, final CurrencyData currency,
+                                                                      final BigDecimal transferAmount, final LocalDate transferDate, final String description,
+                                                                      final Boolean reversed, final ClientData fromClient, final ClientData toClient) {
+
+        final EnumOptionData fromAccountType = null;
+        final EnumOptionData toAccountType = null;
+
+        return new AccountTransferData(id, reversed, null, fromClient, fromAccountType, null, currency, transferAmount, transferDate, description,
+                null, toClient, toAccountType, null, null, null, null, null, null, null, null, null);
+    }
+
     private AccountTransferData(final Long id, final Boolean reversed, final OfficeData fromOffice, final ClientData fromClient,
             final EnumOptionData fromAccountType, final PortfolioAccountData fromAccount, final CurrencyData currency,
             final BigDecimal transferAmount, final LocalDate transferDate, final String transferDescription, final OfficeData toOffice,

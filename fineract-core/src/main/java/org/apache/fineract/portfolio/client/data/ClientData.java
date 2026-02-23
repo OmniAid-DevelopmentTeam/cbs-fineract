@@ -485,6 +485,41 @@ public final class ClientData implements Comparable<ClientData>, Serializable {
     }
 
     public static ClientData instance(final String accountNo, final EnumOptionData status, final CodeValueData subStatus,
+                                      final Long officeId, final Long transferToOfficeId, final Long id, final String firstname,
+                                      final String middlename, final String lastname, final String fullname, final String displayName,
+                                      final ExternalId externalId, final String mobileNo, final String emailAddress, final LocalDate dateOfBirth,
+                                      final CodeValueData gender, final LocalDate activationDate, final Long imageId, final Long staffId,
+                                      final Long savingsProductId, final Long savingsAccountId, final CodeValueData clientType,
+                                      final CodeValueData clientClassification, final EnumOptionData legalForm, final Boolean isStaff) {
+
+        final String officeName = null;
+        final String transferToOfficeName = null;
+        final String staffName = null;
+        final Collection<OfficeData> allowedOffices = null;
+        final Collection<GroupGeneralData> groups = null;
+        final Collection<StaffData> staffOptions = null;
+        final Collection<CodeValueData> closureReasons = null;
+        final Collection<CodeValueData> genderOptions = null;
+        final ClientTimelineData timeline = null;
+        final Collection<SavingsProductData> savingProductOptions = null;
+        final String savingsProductName = null;
+        final Collection<CodeValueData> clientTypeOptions = null;
+        final Collection<CodeValueData> clientClassificationOptions = null;
+        final Collection<CodeValueData> clientNonPersonConstitutionOptions = null;
+        final Collection<CodeValueData> clientNonPersonMainBusinessLineOptions = null;
+        final ClientNonPersonData clientNonPerson = null;
+        final List<EnumOptionData> clientLegalFormOptions = null;
+        final ClientFamilyMembersData familyMemberOptions = null;
+        return new ClientData(accountNo, status, subStatus, officeId, officeName, transferToOfficeId, transferToOfficeName, id, firstname,
+                middlename, lastname, fullname, displayName, externalId, mobileNo, emailAddress, dateOfBirth, gender, activationDate,
+                imageId, staffId, staffName, allowedOffices, groups, staffOptions, closureReasons, genderOptions, timeline,
+                savingProductOptions, savingsProductId, savingsProductName, savingsAccountId, null, clientType, clientClassification,
+                clientTypeOptions, clientClassificationOptions, clientNonPersonConstitutionOptions, clientNonPersonMainBusinessLineOptions,
+                clientNonPerson, clientLegalFormOptions, familyMemberOptions, legalForm, null, null, null, isStaff, null);
+
+    }
+
+    public static ClientData instance(final String accountNo, final EnumOptionData status, final CodeValueData subStatus,
             final Long officeId, final String officeName, final Long transferToOfficeId, final String transferToOfficeName, final Long id,
             final String firstname, final String middlename, final String lastname, final String fullname, final String displayName,
             final ExternalId externalId, final String mobileNo, final String emailAddress, final LocalDate dateOfBirth,

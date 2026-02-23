@@ -3,6 +3,9 @@
 **/.gradle/*
 **/bin/*
 
+.idea
+*.iml
+
 *.jar
 *.war
 

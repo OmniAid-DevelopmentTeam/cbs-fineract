@@ -34,6 +34,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.fineract.accounting.common.AccountingRuleType;
 import org.apache.fineract.accounting.glaccount.data.GLAccountData;
+import org.apache.fineract.infrastructure.codes.data.CodeValueData;
 import org.apache.fineract.infrastructure.core.data.EnumOptionData;
 import org.apache.fineract.infrastructure.core.domain.ExternalId;
 import org.apache.fineract.infrastructure.core.domain.JdbcSupport;
@@ -1078,33 +1079,111 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
         public SavingsAccountTransactionsMapper() {}
 
         private static String buildSelect() {
-            return "tr.id as transactionId, tr.transaction_type_enum as transactionType, "
-                    + "tr.transaction_date as transactionDate, tr.amount as transactionAmount, "
-                    + "tr.release_id_of_hold_amount as releaseTransactionId, tr.reason_for_block as reasonForBlock, "
-                    + "tr.submitted_on_date as submittedOnDate, au.username as submittedByUsername, nt.note as transactionNote, "
-                    + "tr.running_balance_derived as runningBalance, tr.is_reversed as reversed, "
-                    + "tr.is_reversal as isReversal, tr.original_transaction_id as originalTransactionId, tr.is_lien_transaction as lienTransaction, "
-                    + "fromtran.id as fromTransferId, fromtran.is_reversed as fromTransferReversed, "
-                    + "fromtran.transaction_date as fromTransferDate, fromtran.amount as fromTransferAmount, "
-                    + "fromtran.description as fromTransferDescription, "
-                    + "totran.id as toTransferId, totran.is_reversed as toTransferReversed, "
-                    + "totran.transaction_date as toTransferDate, totran.amount as toTransferAmount, "
-                    + "totran.description as toTransferDescription, sa.id as savingsId, sa.account_no as accountNo, "
-                    + "pd.payment_type_id as paymentType,pd.account_number as accountNumber,pd.check_number as checkNumber, "
-                    + "pd.receipt_number as receiptNumber, pd.bank_number as bankNumber,pd.routing_code as routingCode, "
-                    + "sa.currency_code as currencyCode, sa.currency_digits as currencyDigits, sa.currency_multiplesof as inMultiplesOf, "
-                    + "curr.name as currencyName, curr.internationalized_name_code as currencyNameCode, "
-                    + "curr.display_symbol as currencyDisplaySymbol, pt.value as paymentTypeName, " + "tr.is_manual as postInterestAsOn ";
+            return "tr.id                                  as transactionId, "
+                    + "tr.transaction_type_enum               as transactionType, "
+                    + "tr.transaction_date                    as transactionDate, "
+                    + "tr.amount                              as transactionAmount, "
+                    + "tr.release_id_of_hold_amount           as releaseTransactionId, "
+                    + "tr.reason_for_block                    as reasonForBlock, "
+                    + "tr.submitted_on_date                   as submittedOnDate, "
+                    + "au.username                            as submittedByUsername, "
+                    + "nt.note                                as transactionNote, "
+                    + "tr.running_balance_derived             as runningBalance, "
+                    + "tr.is_reversed                         as reversed, "
+                    + "tr.is_reversal                         as isReversal, "
+                    + "tr.original_transaction_id             as originalTransactionId, "
+                    + "tr.is_lien_transaction                 as lienTransaction, "
+                    + "fromtran.id                            as fromTransferId, "
+                    + "fromtran.is_reversed                   as fromTransferReversed, "
+                    + "fromtran.transaction_date              as fromTransferDate, "
+                    + "fromtran.amount                        as fromTransferAmount, "
+                    + "fromtran.description                   as fromTransferDescription, "
+                    + "totran.id                              as toTransferId, "
+                    + "totran.is_reversed                     as toTransferReversed, "
+                    + "totran.transaction_date                as toTransferDate, "
+                    + "totran.amount                          as toTransferAmount, "
+                    + "totran.description                     as toTransferDescription, "
+                    + "sa.id                                  as savingsId, "
+                    + "sa.account_no                          as accountNo, "
+                    + "pd.payment_type_id                     as paymentType, "
+                    + "pd.account_number                      as accountNumber, "
+                    + "pd.check_number                        as checkNumber, "
+                    + "pd.receipt_number                      as receiptNumber, "
+                    + "pd.bank_number                         as bankNumber, "
+                    + "pd.routing_code                        as routingCode, "
+                    + "sa.currency_code                       as currencyCode, "
+                    + "sa.currency_digits                     as currencyDigits, "
+                    + "sa.currency_multiplesof                as inMultiplesOf, "
+                    + "curr.name                              as currencyName, "
+                    + "curr.internationalized_name_code       as currencyNameCode, "
+                    + "curr.display_symbol                    as currencyDisplaySymbol, "
+                    + "pt.value                               as paymentTypeName, "
+                    + "tr.is_manual                           as postInterestAsOn, "
+                    + "td.to_client_id                        as toClientId, "
+                    + "td.from_client_id                      as fromClientId, "
+                    + "fromClient.account_no                  as fromClientAccountNo, "
+                    + "fromClient.external_id                 as fromClientExternalId, "
+                    + "fromClient.status_enum                 as fromClientStatus, "
+                    + "fromClient.sub_status                  as fromClientSubStatusCodeId, "
+                    + "fromClient.activation_date             as fromClientActivationDate, "
+                    + "fromClient.office_id                   as fromClientOfficeId, "
+                    + "fromClient.transfer_to_office_id       as fromClientTransferToOfficeId, "
+                    + "fromClient.staff_id                    as fromClientStaffId, "
+                    + "fromClient.gender_cv_id                as fromClientGenderCodeId, "
+                    + "fromClient.firstname                   as fromClientFirstName, "
+                    + "fromClient.middlename                  as fromClientMiddleName, "
+                    + "fromClient.lastname                    as fromClientLastName, "
+                    + "fromClient.fullname                    as fromClientFullName, "
+                    + "fromClient.display_name                as fromClientDisplayName, "
+                    + "fromClient.mobile_no                   as fromClientMobileNo, "
+                    + "fromClient.is_staff                    as fromClientIsStaff, "
+                    + "fromClient.date_of_birth               as fromClientDateOfBirth, "
+                    + "fromClient.image_id                    as fromClientImageId, "
+                    + "fromClient.default_savings_product     as fromClientDefaultSavingsProductId, "
+                    + "fromClient.default_savings_account     as fromClientDefaultSavingsAccountId, "
+                    + "fromClient.client_type_cv_id           as fromClientTypeCodeId, "
+                    + "fromClient.client_classification_cv_id as fromClientClassificationCodeId, "
+                    + "fromClient.legal_form_enum             as fromClientLegalForm, "
+                    + "fromClient.email_address               as fromClientEmailAddress, "
+                    + "toClient.account_no                    as toClientAccountNo, "
+                    + "toClient.external_id                   as toClientExternalId, "
+                    + "toClient.status_enum                   as toClientStatus, "
+                    + "toClient.sub_status                    as toClientSubStatusCodeId, "
+                    + "toClient.activation_date               as toClientActivationDate, "
+                    + "toClient.office_id                     as toClientOfficeId, "
+                    + "toClient.transfer_to_office_id         as toClientTransferToOfficeId, "
+                    + "toClient.staff_id                      as toClientStaffId, "
+                    + "toClient.gender_cv_id                  as toClientGenderCodeId, "
+                    + "toClient.firstname                     as toClientFirstName, "
+                    + "toClient.middlename                    as toClientMiddleName, "
+                    + "toClient.lastname                      as toClientLastName, "
+                    + "toClient.fullname                      as toClientFullName, "
+                    + "toClient.display_name                  as toClientDisplayName, "
+                    + "toClient.mobile_no                     as toClientMobileNo, "
+                    + "toClient.is_staff                      as toClientIsStaff, "
+                    + "toClient.date_of_birth                 as toClientDateOfBirth, "
+                    + "toClient.image_id                      as toClientImageId, "
+                    + "toClient.default_savings_product       as toClientDefaultSavingsProductId, "
+                    + "toClient.default_savings_account       as toClientDefaultSavingsAccountId, "
+                    + "toClient.client_type_cv_id             as toClientTypeCodeId, "
+                    + "toClient.client_classification_cv_id   as toClientClassificationCodeId, "
+                    + "toClient.legal_form_enum               as toClientLegalForm, "
+                    + "toClient.email_address                 as toClientEmailAddress";
         }
 
         private static String buildFrom() {
-            return " FROM m_savings_account_transaction tr join m_savings_account sa on tr.savings_account_id = sa.id "
+            return " FROM m_savings_account_transaction tr "
+                    + "join m_savings_account sa on tr.savings_account_id = sa.id "
                     + "join m_currency curr on curr.code = sa.currency_code "
                     + "left join m_account_transfer_transaction fromtran on fromtran.from_savings_transaction_id = tr.id "
                     + "left join m_account_transfer_transaction totran on totran.to_savings_transaction_id = tr.id "
                     + "left join m_payment_detail pd on tr.payment_detail_id = pd.id "
-                    + "left join m_payment_type pt on pd.payment_type_id = pt.id left join m_appuser au on au.id= tr." + CREATED_BY_DB_FIELD
-                    + " left join m_note nt ON nt.savings_account_transaction_id=tr.id ";
+                    + "left join m_payment_type pt on pd.payment_type_id = pt.id "
+                    + "left join m_appuser au on au.id = tr." + CREATED_BY_DB_FIELD + " "
+                    + "left join m_note nt on nt.savings_account_transaction_id = tr.id "
+                    + "left join m_account_transfer_details td on td.id = COALESCE(fromtran.account_transfer_details_id, totran.account_transfer_details_id) "
+                    + "left join m_client fromClient on fromClient.id = td.from_client_id "
+                    + "left join m_client toClient on toClient.id = td.to_client_id ";
         }
 
         public String schema() {
@@ -1140,6 +1219,58 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             final Long savingsId = rs.getLong("savingsId");
             final String accountNo = rs.getString("accountNo");
             final boolean postInterestAsOn = rs.getBoolean("postInterestAsOn");
+            final Long toClientId = rs.getLong("toClientId");
+            final Long fromClientId = rs.getLong("fromClientId");
+
+            final String fromClientAccountNo = rs.getString("fromClientAccountNo");
+            final String fromClientExternalId = rs.getString("fromClientExternalId");
+            final Long fromClientStatus = JdbcSupport.getLong(rs, "fromClientStatus");
+            final Long fromClientSubStatusCodeId = JdbcSupport.getLong(rs, "fromClientSubStatusCodeId");
+            final LocalDate fromClientActivationDate = JdbcSupport.getLocalDate(rs, "fromClientActivationDate");
+            final Long fromClientOfficeId = JdbcSupport.getLong(rs, "fromClientOfficeId");
+            final Long fromClientTransferToOfficeId = JdbcSupport.getLong(rs, "fromClientTransferToOfficeId");
+            final Long fromClientStaffId = JdbcSupport.getLong(rs, "fromClientStaffId");
+            final Long fromClientGenderCodeId = JdbcSupport.getLong(rs, "fromClientGenderCodeId");
+            final String fromClientFirstName = rs.getString("fromClientFirstName");
+            final String fromClientMiddleName = rs.getString("fromClientMiddleName");
+            final String fromClientLastName = rs.getString("fromClientLastName");
+            final String fromClientFullName = rs.getString("fromClientFullName");
+            final String fromClientDisplayName = rs.getString("fromClientDisplayName");
+            final String fromClientMobileNo = rs.getString("fromClientMobileNo");
+            final boolean fromClientIsStaff = rs.getBoolean("fromClientIsStaff");
+            final LocalDate fromClientDateOfBirth = JdbcSupport.getLocalDate(rs, "fromClientDateOfBirth");
+            final Long fromClientImageId = JdbcSupport.getLong(rs, "fromClientImageId");
+            final Long fromClientDefaultSavingsProductId = JdbcSupport.getLong(rs, "fromClientDefaultSavingsProductId");
+            final Long fromClientDefaultSavingsAccountId = JdbcSupport.getLong(rs, "fromClientDefaultSavingsAccountId");
+            final String fromClientEmailAddress = rs.getString("fromClientEmailAddress");
+            final Long fromClientTypeCodeId = JdbcSupport.getLong(rs, "fromClientTypeCodeId");
+            final Long fromClientClassificationCodeId = JdbcSupport.getLong(rs, "fromClientClassificationCodeId");
+            final Long fromClientLegalForm = JdbcSupport.getLong(rs, "fromClientLegalForm");
+
+            final String toClientAccountNo = rs.getString("toClientAccountNo");
+            final String toClientExternalId = rs.getString("toClientExternalId");
+            final Long toClientStatus = JdbcSupport.getLong(rs, "toClientStatus");
+            final Long toClientSubStatusCodeId = JdbcSupport.getLong(rs, "toClientSubStatusCodeId");
+            final LocalDate toClientActivationDate = JdbcSupport.getLocalDate(rs, "toClientActivationDate");
+            final Long toClientOfficeId = JdbcSupport.getLong(rs, "toClientOfficeId");
+            final Long toClientTransferToOfficeId = JdbcSupport.getLong(rs, "toClientTransferToOfficeId");
+            final Long toClientStaffId = JdbcSupport.getLong(rs, "toClientStaffId");
+            final Long toClientGenderCodeId = JdbcSupport.getLong(rs, "toClientGenderCodeId");
+            final String toClientFirstName = rs.getString("toClientFirstName");
+            final String toClientMiddleName = rs.getString("toClientMiddleName");
+            final String toClientLastName = rs.getString("toClientLastName");
+            final String toClientFullName = rs.getString("toClientFullName");
+            final String toClientDisplayName = rs.getString("toClientDisplayName");
+            final String toClientMobileNo = rs.getString("toClientMobileNo");
+            final boolean toClientIsStaff = rs.getBoolean("toClientIsStaff");
+            final LocalDate toClientDateOfBirth = JdbcSupport.getLocalDate(rs, "toClientDateOfBirth");
+            final Long toClientImageId = JdbcSupport.getLong(rs, "toClientImageId");
+            final Long toClientDefaultSavingsProductId = JdbcSupport.getLong(rs, "toClientDefaultSavingsProductId");
+            final Long toClientDefaultSavingsAccountId = JdbcSupport.getLong(rs, "toClientDefaultSavingsAccountId");
+            final String toClientEmailAddress = rs.getString("toClientEmailAddress");
+            final Long toClientTypeCodeId = JdbcSupport.getLong(rs, "toClientTypeCodeId");
+            final Long toClientClassificationCodeId = JdbcSupport.getLong(rs, "toClientClassificationCodeId");
+            final Long toClientLegalForm = JdbcSupport.getLong(rs, "toClientLegalForm");
 
             PaymentDetailData paymentDetailData = null;
             if (transactionType.isDepositOrWithdrawal()) {
@@ -1169,28 +1300,67 @@ public class SavingsAccountReadPlatformServiceImpl implements SavingsAccountRead
             AccountTransferData transfer = null;
             final Long fromTransferId = JdbcSupport.getLong(rs, "fromTransferId");
             final Long toTransferId = JdbcSupport.getLong(rs, "toTransferId");
+
+            ClientData fromClient = buildClientData(fromClientId, fromClientAccountNo, fromClientStatus, fromClientSubStatusCodeId,
+                    fromClientExternalId, fromClientGenderCodeId, fromClientTypeCodeId, fromClientClassificationCodeId,
+                    fromClientLegalForm, fromClientActivationDate, fromClientOfficeId, fromClientTransferToOfficeId,
+                    fromClientStaffId, fromClientFirstName, fromClientMiddleName, fromClientLastName, fromClientFullName,
+                    fromClientDisplayName, fromClientMobileNo, fromClientEmailAddress, fromClientDateOfBirth, fromClientImageId,
+                    fromClientDefaultSavingsProductId, fromClientDefaultSavingsAccountId, fromClientIsStaff);
+            ClientData toClient = buildClientData(toClientId, toClientAccountNo, toClientStatus, toClientSubStatusCodeId,
+                    toClientExternalId, toClientGenderCodeId, toClientTypeCodeId, toClientClassificationCodeId, toClientLegalForm,
+                    toClientActivationDate, toClientOfficeId, toClientTransferToOfficeId, toClientStaffId, toClientFirstName,
+                    toClientMiddleName, toClientLastName, toClientFullName, toClientDisplayName, toClientMobileNo,
+                    toClientEmailAddress, toClientDateOfBirth, toClientImageId, toClientDefaultSavingsProductId,
+                    toClientDefaultSavingsAccountId, toClientIsStaff);
+
             if (fromTransferId != null) {
                 final LocalDate fromTransferDate = JdbcSupport.getLocalDate(rs, "fromTransferDate");
                 final BigDecimal fromTransferAmount = JdbcSupport.getBigDecimalDefaultToZeroIfNull(rs, "fromTransferAmount");
                 final boolean fromTransferReversed = rs.getBoolean("fromTransferReversed");
                 final String fromTransferDescription = rs.getString("fromTransferDescription");
 
-                transfer = AccountTransferData.transferBasicDetails(fromTransferId, currency, fromTransferAmount, fromTransferDate,
-                        fromTransferDescription, fromTransferReversed);
+                transfer = AccountTransferData.transferBasicDetailsWithClients(fromTransferId, currency, fromTransferAmount, fromTransferDate,
+                        fromTransferDescription, fromTransferReversed, fromClient, toClient);
             } else if (toTransferId != null) {
                 final LocalDate toTransferDate = JdbcSupport.getLocalDate(rs, "toTransferDate");
                 final BigDecimal toTransferAmount = JdbcSupport.getBigDecimalDefaultToZeroIfNull(rs, "toTransferAmount");
                 final boolean toTransferReversed = rs.getBoolean("toTransferReversed");
                 final String toTransferDescription = rs.getString("toTransferDescription");
 
-                transfer = AccountTransferData.transferBasicDetails(toTransferId, currency, toTransferAmount, toTransferDate,
-                        toTransferDescription, toTransferReversed);
+                transfer = AccountTransferData.transferBasicDetailsWithClients(toTransferId, currency, toTransferAmount, toTransferDate,
+                        toTransferDescription, toTransferReversed, fromClient, toClient);
             }
             final String submittedByUsername = rs.getString("submittedByUsername");
             final String note = rs.getString("transactionNote");
             return SavingsAccountTransactionData.create(id, transactionType, paymentDetailData, savingsId, accountNo, date, currency,
                     amount, outstandingChargeAmount, runningBalance, reversed, transfer, submittedOnDate, postInterestAsOn,
                     submittedByUsername, note, isReversal, originalTransactionId, lienTransaction, releaseTransactionId, reasonForBlock);
+        }
+
+        private ClientData buildClientData(final Long clientId, final String accountNumber, final Long clientStatus,
+                                           final Long clientSubStatusCodeId, final String clientExternalId, final Long clientGenderCodeId,
+                                           final Long clientTypeCodeId, final Long clientClassificationCodeId, final Long clientLegalForm,
+                                           final LocalDate clientActivationDate, final Long clientOfficeId, final Long clientTransferToOfficeId,
+                                           final Long clientStaffId, final String clientFirstname, final String clientMiddleName,
+                                           final String clientLastname, final String clientFullName, final String clientDisplayName,
+                                           final String clientMobileNo, final String clientEmailAddress, final LocalDate clientDateOfBirth,
+                                           final Long clientImageId, final Long clientDefaultSavingsProductId,
+                                           final Long clientDefaultSavingsAccountId, final boolean clientIsStaff) {
+            final EnumOptionData clientStatusEnum = clientStatus == null ? null : new EnumOptionData(clientStatus, null, null);
+            final CodeValueData clientSubStatus = clientSubStatusCodeId == null ? null : CodeValueData.builder().id(clientSubStatusCodeId).build();
+            final ExternalId externalId = clientExternalId == null ? null : new ExternalId(clientExternalId);
+            final CodeValueData clientGender = clientGenderCodeId == null ? null : CodeValueData.builder().id(clientGenderCodeId).build();
+            final CodeValueData clientType = clientTypeCodeId == null ? null : CodeValueData.builder().id(clientTypeCodeId).build();
+            final CodeValueData clientClassification = clientClassificationCodeId == null ? null : CodeValueData.builder().id(clientClassificationCodeId).build();
+            final EnumOptionData clientLegalFormEnum = clientLegalForm == null ? null : new EnumOptionData(clientLegalForm, null, null);
+
+            return ClientData.instance(accountNumber, clientStatusEnum, clientSubStatus, clientOfficeId,
+                    clientTransferToOfficeId, clientId, clientFirstname, clientMiddleName, clientLastname,
+                    clientFullName, clientDisplayName, externalId, clientMobileNo, clientEmailAddress,
+                    clientDateOfBirth, clientGender, clientActivationDate, clientImageId, clientStaffId,
+                    clientDefaultSavingsProductId, clientDefaultSavingsAccountId, clientType, clientClassification,
+                    clientLegalFormEnum, clientIsStaff);
         }
     }
 
