@@ -24,6 +24,11 @@
 |2MB
 |The property in sets the maximum size of HTTP POST requests that Tomcat can handle
 
+|server.max-http-request-header-size
+|FINERACT_SERVER_MAX_HTTP_REQUEST_HEADER_SIZE
+|32000
+|Sets the maximum size, in bytes, of the HTTP request header that embedded Tomcat will accept before rejecting the request with a 400 error.
+
 |server.tomcat.max-keep-alive-requests
 |FINERACT_SERVER_TOMCAT_MAX_KEEP_ALIVE_REQUESTS
 |100
