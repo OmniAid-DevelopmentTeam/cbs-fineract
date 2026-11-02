@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements. See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership. The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License. You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied. See the License for the
+    specific language governing permissions and limitations
+    under the License.
+
+-->
+<!--
+    OmniAid (OMSD-2152): units of measure as currencies, for aid programmes whose limit is in units. A programme that
+    gives out 20 kg of rice a month is a savings product in KGM: the beneficiary's balance is kept in grams, as a money
+    programme's is in cents.
+    Codes are UN/CEFACT (Rec. 20): no longer than m_currency.code's three characters and not ISO 4217 codes.
+
+      LTR  litre      3 decimals (millilitres)
+      KGM  kilogram   3 decimals (grams)
+      H87  piece      0 decimals
+
+    Fineract has no API that creates a currency (PUT /currencies only enables codes m_currency already has), and a
+    product or account in a code missing from m_currency silently drops out of every listing: the reads inner-join
+    m_currency. The codes are also enabled for the organisation here, so products can be made in them right after the
+    deploy, without a manual PUT /currencies on every tenant. A later PUT /currencies must keep them in its list.
+
+    Ids come from the database, as with every other insert: on PostgreSQL 0003_postgresql_specific_initial_data aligns
+    m_currency_id_seq and m_organisation_currency_id_seq after the seed, so an id taken by hand here would leave the
+    sequence behind and the next PUT /currencies, which inserts by the sequence, would collide with it. The
+    organisation's row is copied from the tenant's own m_currency row, as PUT /currencies does
+    (ApplicationCurrency.toOrganisationCurrency), so the two tables cannot disagree even where a code was added by hand.
+    On PostgreSQL the sequences are aligned again first, as 0003 does: a row inserted by hand with an explicit id does
+    not move them, and an insert by the sequence would collide with it. MySQL/MariaDB need nothing — AUTO_INCREMENT
+    moves past explicit ids.
+    Every insert is guarded by the code, so a tenant that already has it marks it ran.
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <changeSet author="omniaid" id="units-align-sequences" dbms="postgresql">
+        <sql>
+            SELECT SETVAL('m_currency_id_seq', COALESCE(MAX(id), 0) + 1, false) FROM m_currency;
+            SELECT SETVAL('m_organisation_currency_id_seq', COALESCE(MAX(id), 0) + 1, false) FROM m_organisation_currency;
+        </sql>
+    </changeSet>
+    <changeSet author="omniaid" id="units-currency-LTR">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM m_currency WHERE code = 'LTR'</sqlCheck>
+        </preConditions>
+        <insert tableName="m_currency">
+            <column name="code" value="LTR"/>
+            <column name="decimal_places" valueNumeric="3"/>
+            <column name="currency_multiplesof"/>
+            <column name="display_symbol" value="L"/>
+            <column name="name" value="Litre"/>
+            <column name="internationalized_name_code" value="currency.LTR"/>
+        </insert>
+    </changeSet>
+    <changeSet author="omniaid" id="units-currency-KGM">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM m_currency WHERE code = 'KGM'</sqlCheck>
+        </preConditions>
+        <insert tableName="m_currency">
+            <column name="code" value="KGM"/>
+            <column name="decimal_places" valueNumeric="3"/>
+            <column name="currency_multiplesof"/>
+            <column name="display_symbol" value="kg"/>
+            <column name="name" value="Kilogram"/>
+            <column name="internationalized_name_code" value="currency.KGM"/>
+        </insert>
+    </changeSet>
+    <changeSet author="omniaid" id="units-currency-H87">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM m_currency WHERE code = 'H87'</sqlCheck>
+        </preConditions>
+        <insert tableName="m_currency">
+            <column name="code" value="H87"/>
+            <column name="decimal_places" valueNumeric="0"/>
+            <column name="currency_multiplesof"/>
+            <column name="display_symbol" value="pcs"/>
+            <column name="name" value="Piece"/>
+            <column name="internationalized_name_code" value="currency.H87"/>
+        </insert>
+    </changeSet>
+    <changeSet author="omniaid" id="units-organisation-LTR">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM m_organisation_currency WHERE code = 'LTR'</sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO m_organisation_currency (code, decimal_places, currency_multiplesof, name, display_symbol,
+                                                 internationalized_name_code)
+            SELECT code, decimal_places, currency_multiplesof, name, display_symbol, internationalized_name_code
+            FROM m_currency WHERE code = 'LTR'
+        </sql>
+    </changeSet>
+    <changeSet author="omniaid" id="units-organisation-KGM">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM m_organisation_currency WHERE code = 'KGM'</sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO m_organisation_currency (code, decimal_places, currency_multiplesof, name, display_symbol,
+                                                 internationalized_name_code)
+            SELECT code, decimal_places, currency_multiplesof, name, display_symbol, internationalized_name_code
+            FROM m_currency WHERE code = 'KGM'
+        </sql>
+    </changeSet>
+    <changeSet author="omniaid" id="units-organisation-H87">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM m_organisation_currency WHERE code = 'H87'</sqlCheck>
+        </preConditions>
+        <sql>
+            INSERT INTO m_organisation_currency (code, decimal_places, currency_multiplesof, name, display_symbol,
+                                                 internationalized_name_code)
+            SELECT code, decimal_places, currency_multiplesof, name, display_symbol, internationalized_name_code
+            FROM m_currency WHERE code = 'H87'
+        </sql>
+    </changeSet>
+</databaseChangeLog>
