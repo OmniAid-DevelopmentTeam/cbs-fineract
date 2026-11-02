@@ -211,4 +211,6 @@
     <include file="parts/0190_buy_down_fee_amortization.xml" relativeToChangelogFile="true" />
     <include file="parts/0191_add_LoanApprovedAmountChangedBusinessEvent.xml" relativeToChangelogFile="true" />
     <include file="parts/0192_create_loan_approved_amount_history.xml" relativeToChangelogFile="true" />
+    <!-- OmniAid: our own changeSets after upstream's, named apart so a rebase on upstream does not renumber them -->
+    <include file="parts/omniaid_0001_units.xml" relativeToChangelogFile="true" />
 </databaseChangeLog>
